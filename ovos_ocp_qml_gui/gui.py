@@ -99,7 +99,6 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
     # OCP pre-rendering abstract methods
     def prepare_display(self, page_requested, timeout=None):
-        sleep(0.2)
         state2str = {PlayerState.PLAYING: "Playing",
                      PlayerState.PAUSED: "Paused",
                      PlayerState.STOPPED: "Stopped"}
@@ -111,8 +110,6 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         LOG.debug(f"manage_display: page_requested: {page_requested}")
         LOG.debug(f"manage_display: player_status: {self.player.state}")
 
-        sleep(0.2)
-
     def prepare_home(self):
         self.update_ocp_skills()  # populate self["skillCards"]
         self.clear_notification()
@@ -120,8 +117,6 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         if (self.player.state == PlayerState.PLAYING and self.player.app_view_timeout_enabled
                 and self.player.app_view_timeout_mode == "all"):
             self.schedule_app_view_timeout()
-
-        sleep(0.2)
 
     def prepare_player(self):
         # Always clear the spinner and notification before showing the player
