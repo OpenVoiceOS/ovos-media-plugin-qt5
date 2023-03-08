@@ -114,14 +114,9 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
         sleep(0.2)
 
-    def prepare_home(self, app_mode=True):
+    def prepare_home(self):
         self.update_ocp_skills()  # populate self["skillCards"]
         self.clear_notification()
-
-        if app_mode:
-            self.persist_home_display = True
-        else:
-            self.persist_home_display = False
 
         if (self.player.state == PlayerState.PLAYING and self.player.app_view_timeout_enabled
                 and self.player.app_view_timeout_mode == "all"):
@@ -131,7 +126,6 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
     def prepare_player(self):
         # Always clear the spinner and notification before showing the player
-        self.persist_home_display = True
         self.remove_search_spinner()
         self.clear_notification()
 
@@ -146,6 +140,12 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
     def prepare_search(self):
         self.update_search_results()  # populate self["searchModel"]
+
+    def prepare_search_spinner(self):
+        pass
+
+    def prepare_playback_error(self):
+        pass
 
     # OCP rendering abstract methods
     def render_home(self):
@@ -183,11 +183,14 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
             self["footer_text"] = "Sorry, An error occurred while playing media"
             self.remove_search_spinner()
 
-    def render_search_spinner(self, persist_home=False):
-        self.render_home(app_mode=persist_home)
+    def render_search_spinner(self):
+        self.render_home()
         sleep(0.2)
         self.send_event("ocp.gui.show.busy.overlay")
         self["footer_text"] = "Querying Skills\n\n"
+
+    def remove_search_spinner(self):
+        self.send_event("ocp.gui.hide.busy.overlay")
 
     # page helpers
     def unload_player_loader(self):
