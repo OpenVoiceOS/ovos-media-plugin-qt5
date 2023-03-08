@@ -16,6 +16,34 @@ class VideoPlayerBackend(str, enum.Enum):
 
 
 class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
+    # Home:
+    # The home search page will always be shown at Protocol level index 0
+    # This is to ensure that the home is always available to the user
+    # regardless of what other pages are currently open
+    # Swiping from the player to the left will always show the home page
+
+    # The home page will only be in view if the user is not currently playing an active track
+    # If the user is playing a track, the player will be shown instead
+    # This is to ensure that the user always returns to the player when they are playing a track
+
+    # The search_spinner_page has been integrated into the home page as an overlay
+    # It will be shown when the user is searching for a track and will be hidden when the search is complete
+    # on platforms that don't support the notification system
+
+    # Player:
+    # Player loader will always be shown at Protocol level index 1
+    # The merged playlist and disambiguation pages will always be shown at Protocol level index 2
+
+    # If the user has just opened the ocp home page, and nothing was played previously,
+    # the player and merged playlist/disambiguation page will not be shown
+
+    # If the user has just opened the ocp home page, and a track was previously played,
+    # the player and merged playlist/disambiguation page will always be shown
+
+    # If the player is not paused or stopped, the player will be shown instead of the home page
+    # when ocp is opened
+
+    # Timeout is used to ensure that ocp is fully closed once the timeout has expired
 
     # QML resource definitions
     @property
@@ -71,35 +99,6 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
     # OCP pre-rendering abstract methods
     def prepare_display(self, page_requested, timeout=None):
-        # Home:
-        # The home search page will always be shown at Protocol level index 0
-        # This is to ensure that the home is always available to the user
-        # regardless of what other pages are currently open
-        # Swiping from the player to the left will always show the home page
-
-        # The home page will only be in view if the user is not currently playing an active track
-        # If the user is playing a track, the player will be shown instead
-        # This is to ensure that the user always returns to the player when they are playing a track
-
-        # The search_spinner_page has been integrated into the home page as an overlay
-        # It will be shown when the user is searching for a track and will be hidden when the search is complete
-        # on platforms that don't support the notification system
-
-        # Player:
-        # Player loader will always be shown at Protocol level index 1
-        # The merged playlist and disambiguation pages will always be shown at Protocol level index 2
-
-        # If the user has just opened the ocp home page, and nothing was played previously,
-        # the player and merged playlist/disambiguation page will not be shown
-
-        # If the user has just opened the ocp home page, and a track was previously played,
-        # the player and merged playlist/disambiguation page will always be shown
-
-        # If the player is not paused or stopped, the player will be shown instead of the home page
-        # when ocp is opened
-
-        # Timeout is used to ensure that ocp is fully closed once the timeout has expired
-
         sleep(0.2)
         state2str = {PlayerState.PLAYING: "Playing",
                      PlayerState.PAUSED: "Paused",
@@ -128,12 +127,22 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         # Always clear the spinner and notification before showing the player
         self.remove_search_spinner()
         self.clear_notification()
-
+        self.update_current_track()  # populate now_playing metadata
         check_backend = self._get_player_page()
         if self.get("playerBackend", "") != check_backend:
             self.unload_player_loader()
 
-        sleep(0.2)
+    def prepare_audio_player(self):
+        self.prepare_player()
+
+    def prepare_video_player(self):
+        self.prepare_player()
+
+    def prepare_sync_player(self):
+        self.prepare_player()
+
+    def prepare_web_player(self):
+        self.prepare_player()
 
     def prepare_playlist(self):
         self.update_playlist()  # populate self["playlistModel"]
@@ -158,6 +167,18 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         self["playerBackend"] = self._get_player_page()
         self.show_pages(self._get_pages_to_display(), 0, override_idle=True, override_animations=True)
 
+    def render_audio_player(self):
+        self.render_player()
+
+    def render_video_player(self):
+        self.render_player()
+
+    def render_sync_player(self):
+        self.render_player()
+
+    def render_web_player(self):
+        self.render_player()
+
     def render_playlist(self, timeout=None):
         self["displaySuggestionBar"] = False
         self.send_event("ocp.gui.show.suggestion.view.playlist")
@@ -166,7 +187,7 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         else:
             self.show_page(self.disambiguation_playlists_page, override_idle=True, override_animations=True)
 
-    def render_search(self, timeout=None):
+    def render_disambiguation(self, timeout=None):
         self["displaySuggestionBar"] = False
         self.send_event("ocp.gui.show.suggestion.view.disambiguation")
         if timeout is not None:
