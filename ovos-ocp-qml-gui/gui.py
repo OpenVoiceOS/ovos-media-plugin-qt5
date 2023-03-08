@@ -160,7 +160,7 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
     def render_playlist(self, timeout=None):
         self["displaySuggestionBar"] = False
-        self._show_suggestion_playlist()
+        self.send_event("ocp.gui.show.suggestion.view.playlist")
         if timeout is not None:
             self.show_page(self.disambiguation_playlists_page, override_idle=timeout, override_animations=True)
         else:
@@ -168,7 +168,7 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
     def render_search(self, timeout=None):
         self["displaySuggestionBar"] = False
-        self._show_suggestion_disambiguation()
+        self.send_event("ocp.gui.show.suggestion.view.disambiguation")
         if timeout is not None:
             self.show_page(self.disambiguation_playlists_page, override_idle=timeout, override_animations=True)
         else:
@@ -216,29 +216,19 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
 
         if len(self.player.disambiguation):
             self["displaySuggestionBar"] = False
-            self._show_suggestion_disambiguation()
+            self.send_event("ocp.gui.show.suggestion.view.disambiguation")
 
         if len(self.player.tracks):
             self["displaySuggestionBar"] = False
-            self._show_suggestion_playlist()
+            self.send_event("ocp.gui.show.suggestion.view.playlist")
 
         if len(self.player.disambiguation) and len(self.player.tracks):
             self["displaySuggestionBar"] = True
-            self._show_suggestion_playlist()
+            self.send_event("ocp.gui.show.suggestion.view.playlist")
 
         pages = [self.player_loader_page, self.disambiguation_playlists_page]
 
         return pages
 
-    def _show_home_search(self):
-        self.send_event("ocp.gui.show.home.view.search")
 
-    def _show_home_skills(self):
-        self.send_event("ocp.gui.show.home.view.skills")
-
-    def _show_suggestion_playlist(self):
-        self.send_event("ocp.gui.show.suggestion.view.playlist")
-
-    def _show_suggestion_disambiguation(self):
-        self.send_event("ocp.gui.show.suggestion.view.disambiguation")
 
