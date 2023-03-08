@@ -115,7 +115,7 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         sleep(0.2)
 
     def prepare_home(self, app_mode=True):
-        self.update_ocp_skills()
+        self.update_ocp_skills()  # populate self["skillCards"]
         self.clear_notification()
 
         if app_mode:
@@ -142,10 +142,10 @@ class OCPMediaPlayerQML(AbstractOCPMediaPlayerGUI):
         sleep(0.2)
 
     def prepare_playlist(self):
-        pass
+        self.update_playlist()  # populate self["playlistModel"]
 
     def prepare_search(self):
-        pass
+        self.update_search_results()  # populate self["searchModel"]
 
     # OCP rendering abstract methods
     def render_home(self):
