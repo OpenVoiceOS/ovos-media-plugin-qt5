@@ -29,15 +29,11 @@ class QT5BaseService(MediaBackend):
 
     def handle_status(self, message):
         self.playback_type = message.data["playback_type"]
-        if (self.playback_type == PlaybackType.AUDIO and not self.is_video) or \
-                (self.playback_type == PlaybackType.VIDEO and self.is_video):
-            self.title = message.data.get("title", "")
-            self.artist = message.data.get("artist", "")
-            self.image = message.data.get("image", "")
-        else:
-            self.title = self.artist = self.image = ""
+        self.title = message.data.get("title", "")
+        self.artist = message.data.get("artist", "")
+        self.image = message.data.get("image", "")
 
-    def render(self, page, timeout=None, index=2):
+    def render(self, page, timeout=None):
         # self.gui synced with ovos-media due to shared OCP_ID
         self.gui["uri"] = self._now_playing  # for like/unlike
         if self.playback_type == PlaybackType.AUDIO:
@@ -48,7 +44,7 @@ class QT5BaseService(MediaBackend):
             self.gui["web_player_page"] = page
 
         pages = ["Home", page, "PlaylistView"]
-        self.gui.show_pages(pages, index,
+        self.gui.show_pages(pages, 1,
                             override_idle=timeout or True,
                             override_animations=True,
                             remove_others=True)
@@ -135,6 +131,16 @@ class QT5BasePlayerService(QT5BaseService):
         self.bus.on("gui.player.media.service.get.meta", self.handle_get_meta)
         self.bus.on("gui.player.media.service.sync.status", self.handle_gui_player_status)
         self.bus.on("gui.player.media.service.current.media.status", self.handle_gui_media_status)
+
+    def handle_status(self, message):
+        self.playback_type = message.data["playback_type"]
+        if (self.playback_type == PlaybackType.AUDIO and not self.is_video) or \
+                (self.playback_type == PlaybackType.VIDEO and self.is_video):
+            self.title = message.data.get("title", "")
+            self.artist = message.data.get("artist", "")
+            self.image = message.data.get("image", "")
+        else:
+            self.title = self.artist = self.image = ""
 
     def handle_gui_player_status(self, message):
         """player state event from mycroft-gui
@@ -228,6 +234,15 @@ class QT5OCPVideoService(VideoPlayerBackend, QT5BasePlayerService):
 
 
 class QT5OCPWebService(VideoPlayerBackend, QT5BaseService):
+
+    def handle_status(self, message):
+        self.playback_type = message.data["playback_type"]
+        if self.playback_type == PlaybackType.WEBVIEW:
+            self.title = message.data.get("title", "")
+            self.artist = message.data.get("artist", "")
+            self.image = message.data.get("image", "")
+        else:
+            self.title = self.artist = self.image = ""
 
     def play(self, repeat=False):
         """ Play web using qt5. """
